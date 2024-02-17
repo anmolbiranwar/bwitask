@@ -1,11 +1,13 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import "../CSS/HomePage.css";
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
-  const [searchProduct, setSearchProduct]=useState("");
+  const [searchProduct, setSearchProduct] = useState("");
+  const [cartCount, setCartCount] = useState(0);
 
- useEffect(() => {
+  useEffect(() => {
     axios
       .get(`https://dummyjson.com/products/search?q=${searchProduct}`)
       .then((res) => {
@@ -29,15 +31,35 @@ const HomePage = () => {
       });
   }, []);
 
-  
   const handleSearch = (event) => {
     setSearchProduct(event.target.value);
   };
 
+  const handleAddToCart = () => {
+    // Increment the cart count when "Add to Cart" is clicked
+    setCartCount(cartCount + 1);
+  };
+
+  const handleFilterSelect = (filter) => {
+    if (filter === "minToMax") {
+      // Sort products based on price from minimum to maximum
+      const sortedProducts = [...products].sort(
+        (a, b) => parseFloat(a.price) - parseFloat(b.price)
+      );
+      setProducts(sortedProducts);
+    } else if (filter === "maxToMin") {
+      // Sort products based on price from maximum to minimum
+      const sortedProducts = [...products].sort(
+        (a, b) => parseFloat(b.price) - parseFloat(a.price)
+      );
+      setProducts(sortedProducts);
+    }
+  };
+
   return (
     <>
-      <div className="container mt-2">
-        <nav className="navbar navbar-expand-lg navbar-light bg-light border rounded">
+      <div className="container mt-2 sticky-top">
+        <nav className="navbar navbar-expand-lg navbar-light bg-light border  rounded">
           <div className="container-fluid">
             <a className="navbar-brand" href="#">
               Shoper
@@ -53,43 +75,32 @@ const HomePage = () => {
             >
               <span className="navbar-toggler-icon"></span>
             </button>
-            <div className="collapse navbar-collapse" id="navbarSupportedContent">
+            <div
+              className="collapse navbar-collapse"
+              id="navbarSupportedContent"
+            >
               <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                <li className="nav-item">
-                  <a className="nav-link active" aria-current="page" href="#">
-                    Filter
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link" href="#">
-                    Link
-                  </a>
-                </li>
-                <li className="nav-item dropdown">
-                  <a
-                    className="nav-link dropdown-toggle"
-                    href="#"
-                    id="navbarDropdown"
-                    role="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    Filter
-                  </a>
-                  <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li>
-                      <a className="dropdown-item" href="#">
-                        Price
-                      </a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item" href="#">
-                        Rating
-                      </a>
-                    </li>
-                  </ul>
-                </li>
+                <div className="dropdown">
+                  <button className="btn navbtn">Price</button>
+                  <div className="dropdown-content">
+                    <a href="#" onClick={() => handleFilterSelect("minToMax")}>
+                      Min to Max
+                    </a>
+                    <a href="#" onClick={() => handleFilterSelect("maxToMin")}>
+                      Max to Min
+                    </a>
+                  </div>
+                </div>
+                <div class="dropdown ms-2">
+  <button className="btn navbtn">Dropdown</button>
+  <div class="dropdown-content">
+    <a href="#">Link 1</a>
+    <a href="#">Link 2</a>
+    <a href="#">Link 3</a>
+  </div>
+</div>
               </ul>
+
               <form className="d-flex">
                 <input
                   className="form-control me-2"
@@ -100,11 +111,17 @@ const HomePage = () => {
                   onChange={handleSearch}
                 />
               </form>
+              <button className="btn btn-secondary ms-2 me-2">
+                <span className="bi bi-cart4"></span>
+                {cartCount > 0 && (
+                  <span className="badge bg-primary">{cartCount}</span>
+                )}
+              </button>
             </div>
           </div>
         </nav>
       </div>
-      <div className="d-flex flex-wrap container">
+      <div className="d-flex flex-wrap justify-content-aside container mt-2">
         {products.map((product) => (
           <div
             key={product.id}
@@ -132,7 +149,7 @@ const HomePage = () => {
               </dl>
             </div>
             <div className="card-footer">
-              <button className="btn btn-danger">
+              <button className="btn btn-danger" onClick={handleAddToCart}>
                 <span className="bi bi-cart4"></span> Add to Cart
               </button>
             </div>
