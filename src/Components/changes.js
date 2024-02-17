@@ -1,8 +1,23 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import "../CSS/HomePage.css";
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
+  const [searchProduct, setSearchProduct] = useState("");
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    axios
+      .get(`https://dummyjson.com/products/search?q=${searchProduct}`)
+      .then((res) => {
+        console.log(res.data.products);
+        setProducts(res.data.products);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [searchProduct]);
 
   useEffect(() => {
     axios
@@ -15,16 +30,42 @@ const HomePage = () => {
         console.log(err);
       });
   }, []);
+
+  const handleSearch = (event) => {
+    setSearchProduct(event.target.value);
+  };
+
+  const handleAddToCart = () => {
+    // Increment the cart count when "Add to Cart" is clicked
+    setCartCount(cartCount + 1);
+  };
+
+  const handleFilterSelect = (filter) => {
+    if (filter === "minToMax") {
+      // Sort products based on price from minimum to maximum
+      const sortedProducts = [...products].sort(
+        (a, b) => parseFloat(a.price) - parseFloat(b.price)
+      );
+      setProducts(sortedProducts);
+    } else if (filter === "maxToMin") {
+      // Sort products based on price from maximum to minimum
+      const sortedProducts = [...products].sort(
+        (a, b) => parseFloat(b.price) - parseFloat(a.price)
+      );
+      setProducts(sortedProducts);
+    }
+  };
+
   return (
     <>
-      <div className="container mt-2">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light border">
-          <div class="container-fluid">
-            <a class="navbar-brand" href="#">
+      <div className="container mt-2 sticky-top">
+        <nav className="navbar navbar-expand-lg navbar-light bg-light border  rounded">
+          <div className="container-fluid">
+            <a className="navbar-brand" href="#">
               Shoper
             </a>
             <button
-              class="navbar-toggler"
+              className="navbar-toggler"
               type="button"
               data-bs-toggle="collapse"
               data-bs-target="#navbarSupportedContent"
@@ -32,79 +73,47 @@ const HomePage = () => {
               aria-expanded="false"
               aria-label="Toggle navigation"
             >
-              <span class="navbar-toggler-icon"></span>
+              <span className="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="#">
-                    Filter
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    Link
-                  </a>
-                </li>
-                <li className="nav-item dropdown">
-                  <a
-                    className="nav-link dropdown-toggle"
-                    href="#"
-                    id="navbarDropdown"
-                    role="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    Filter
-                  </a>
-                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li>
-                      <a class="dropdown-item" href="#">
-                        Price
-                      </a>
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="#">
-                        Rating
-                      </a>
-                    </li>
-                    <li>
-                      <hr class="dropdown-divider" />
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="#">
-                        Something else here
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-                <li class="nav-item">
-                  <a
-                    class="nav-link disabled"
-                    href="#"
-                    tabindex="-1"
-                    aria-disabled="true"
-                  >
-                    Disabled
-                  </a>
-                </li>
+            <div
+              className="collapse navbar-collapse"
+              id="navbarSupportedContent"
+            >
+              <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+                <div className="dropdown">
+                  <button className="btn">Price</button>
+                  <div className="dropdown-content">
+                    <a href="#" onClick={() => handleFilterSelect("minToMax")}>
+                      Min to Max
+                    </a>
+                    <a href="#" onClick={() => handleFilterSelect("maxToMin")}>
+                      Max to Min
+                    </a>
+                  </div>
+                </div>
               </ul>
-              <form class="d-flex">
+
+              <form className="d-flex">
                 <input
-                  class="form-control me-2"
+                  className="form-control me-2"
                   type="search"
-                  placeholder="Search"
+                  placeholder="Search product"
                   aria-label="Search"
+                  value={searchProduct}
+                  onChange={handleSearch}
                 />
-                <button class="btn btn-outline-success" type="submit">
-                  Search
-                </button>
               </form>
+              <button className="btn btn-secondary ms-2 me-2">
+                <span className="bi bi-cart4"></span>
+                {cartCount > 0 && (
+                  <span className="badge bg-primary">{cartCount}</span>
+                )}
+              </button>
             </div>
           </div>
         </nav>
       </div>
-      <div className="d-flex flex-wrap container">
+      <div className="d-flex flex-wrap justify-content-aside container mt-2">
         {products.map((product) => (
           <div
             key={product.id}
@@ -115,6 +124,7 @@ const HomePage = () => {
               src={product.images[0]}
               className="card-img-top"
               height="120"
+              alt="Product"
             />
             <div className="card-header">
               <p>{product.title}</p>
@@ -122,7 +132,7 @@ const HomePage = () => {
             <div className="card-body">
               <dl>
                 <dt>Price</dt>
-               <dd> {product.price}</dd>
+                <dd>{product.price}</dd>
                 <dt>Rating</dt>
                 <dd>
                   <span className="bi bi-star-fill text-success"></span>{" "}
@@ -131,7 +141,7 @@ const HomePage = () => {
               </dl>
             </div>
             <div className="card-footer">
-              <button className="btn btn-danger">
+              <button className="btn btn-danger" onClick={handleAddToCart}>
                 <span className="bi bi-cart4"></span> Add to Cart
               </button>
             </div>
