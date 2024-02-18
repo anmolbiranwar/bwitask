@@ -8,8 +8,13 @@ const HomePage = () => {
   const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
+    let apiUrl = "https://dummyjson.com/products";
+    if (searchProduct) {
+      apiUrl += `/search?q=${searchProduct}`;
+    }
+
     axios
-      .get(`https://dummyjson.com/products/search?q=${searchProduct}`)
+      .get(apiUrl)
       .then((res) => {
         console.log(res.data.products);
         setProducts(res.data.products);
@@ -19,9 +24,31 @@ const HomePage = () => {
       });
   }, [searchProduct]);
 
-  useEffect(() => {
+  const handleSearch = (event) => {
+    setSearchProduct(event.target.value);
+  };
+
+  const handleAddToCart = () => {
+    setCartCount(cartCount + 1);
+  };
+
+  const handleFilterSelect = (filter) => {
+    if (filter === "minToMax") {
+      const sortedProducts = [...products].sort(
+        (a, b) => parseFloat(a.price) - parseFloat(b.price)
+      );
+      setProducts(sortedProducts);
+    } else if (filter === "maxToMin") {
+      const sortedProducts = [...products].sort(
+        (a, b) => parseFloat(b.price) - parseFloat(a.price)
+      );
+      setProducts(sortedProducts);
+    }
+  };
+
+  const handleCategorySelect = (category) => {
     axios
-      .get("https://dummyjson.com/products")
+      .get(`https://dummyjson.com/products/category/${category}`)
       .then((res) => {
         console.log(res.data.products);
         setProducts(res.data.products);
@@ -29,31 +56,6 @@ const HomePage = () => {
       .catch((err) => {
         console.log(err);
       });
-  }, []);
-
-  const handleSearch = (event) => {
-    setSearchProduct(event.target.value);
-  };
-
-  const handleAddToCart = () => {
-    // Increment the cart count when "Add to Cart" is clicked
-    setCartCount(cartCount + 1);
-  };
-
-  const handleFilterSelect = (filter) => {
-    if (filter === "minToMax") {
-      // Sort products based on price from minimum to maximum
-      const sortedProducts = [...products].sort(
-        (a, b) => parseFloat(a.price) - parseFloat(b.price)
-      );
-      setProducts(sortedProducts);
-    } else if (filter === "maxToMin") {
-      // Sort products based on price from maximum to minimum
-      const sortedProducts = [...products].sort(
-        (a, b) => parseFloat(b.price) - parseFloat(a.price)
-      );
-      setProducts(sortedProducts);
-    }
   };
 
   return (
@@ -91,14 +93,29 @@ const HomePage = () => {
                     </a>
                   </div>
                 </div>
-                <div class="dropdown ms-2">
-  <button className="btn navbtn">Dropdown</button>
-  <div class="dropdown-content">
-    <a href="#">Link 1</a>
-    <a href="#">Link 2</a>
-    <a href="#">Link 3</a>
-  </div>
-</div>
+                <div className="dropdown ms-2">
+                  <button className="btn navbtn">Categories</button>
+                  <div className="dropdown-content">
+                    <a href="#" onClick={() => handleCategorySelect("smartphones")}>
+                      Smartphones
+                    </a>
+                    <a href="#" onClick={() => handleCategorySelect("laptops")}>
+                      Laptops
+                    </a>
+                    <a href="#" onClick={() => handleCategorySelect("fragrances")}>
+                      Fragrances
+                    </a>
+                    <a href="#" onClick={() => handleCategorySelect("skincare")}>
+                      Skincare
+                    </a>
+                    <a href="#" onClick={() => handleCategorySelect("groceries")}>
+                      Groceries
+                    </a>
+                    <a href="#" onClick={() => handleCategorySelect("home-decoration")}>
+                      Home Decoration
+                    </a>
+                  </div>
+                </div>
               </ul>
 
               <form className="d-flex">
