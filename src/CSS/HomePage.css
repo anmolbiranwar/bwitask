@@ -1,4 +1,4 @@
-*/
+
 .navbtn {
   padding: 16px;
   font-size: 16px;
@@ -6,7 +6,8 @@
   cursor: pointer;
 }
 .navbtn:hover{
-  background-color:rgb(78, 231, 160);
+  background-color:rgb(82, 108, 102);
+  color: white;
 }
 
 .dropdown {
